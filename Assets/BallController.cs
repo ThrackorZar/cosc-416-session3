@@ -15,7 +15,7 @@ public class BallController : MonoBehaviour
     void Start()
     {
         ballRB = GetComponent<Rigidbody>();
-        inputManager = FindObjectOfType<InputManager>();
+        inputManager = FindFirstObjectByType<InputManager>();
         Cursor.lockState = CursorLockMode.Locked;
         inputManager.OnSpacePressed.AddListener(LaunchBall);
         ResetBall();

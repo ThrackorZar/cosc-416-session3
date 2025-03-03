@@ -21,14 +21,32 @@ public class InputManager : MonoBehaviour
         }
 
         Vector2 input = Vector2.zero;
+        // Horizontal input (A/D)
         if (Input.GetKey(KeyCode.A))
         {
-            input += Vector2.left;
+            input.x -= 1;
         }
         if (Input.GetKey(KeyCode.D))
         {
-            input += Vector2.right;
+            input.x += 1;
         }
+        
+        // Vertical input (W/S)
+        if (Input.GetKey(KeyCode.W))
+        {
+            input.y += 1;
+        }
+        if (Input.GetKey(KeyCode.S))
+        {
+            input.y -= 1;
+        }
+        
+        // Normalize input if it exceeds magnitude of 1
+        if (input.sqrMagnitude > 1f)
+        {
+            input.Normalize();
+        }
+        
         OnMove?.Invoke(input);
 
         if (Input.GetKeyDown(KeyCode.R))
