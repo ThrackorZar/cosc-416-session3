@@ -65,7 +65,7 @@ public class PlayerController : MonoBehaviour
         if (isGrounded && canJump)
         {
             Debug.Log("Applying jump force: " + jumpForce);
-            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             canJump = false;
             Invoke("ResetJump", 0.1f);
