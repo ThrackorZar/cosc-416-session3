@@ -2,13 +2,23 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private InputManager inputManager;
+    [Header("Movement Settings")]
     [SerializeField] private float speed = 5f;
+    [SerializeField] private float maxHorizontalSpeed = 8f;
+    [SerializeField] private float maxVerticalSpeed = 15f;
+    
+    [Header("Jump Settings")]
     [SerializeField] private float jumpForce = 7f;
-    [SerializeField] private Camera mainCamera;
+    [SerializeField] private float airDragMultiplier = 0.3f;
+    
+    [Header("Ground Detection")]
     [SerializeField] private string groundTag = "Ground";
     [SerializeField] private float groundCheckRadius = 0.3f;
     [SerializeField] private Transform groundCheck;
+    
+    [Header("References")]
+    [SerializeField] private InputManager inputManager;
+    [SerializeField] private Camera mainCamera;
 
     private Rigidbody rb;
     private Transform cameraTransform;
@@ -55,7 +65,15 @@ public class PlayerController : MonoBehaviour
         
         Vector3 moveDirection = cameraForward * direction.y + cameraRight * direction.x;
         
-        rb.AddForce(speed * moveDirection);
+        // Apply less force in the air for better control
+        float currentSpeed = isGrounded ? speed : speed * 0.8f;
+        
+        // Only apply force if we're under the speed limit
+        Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+        if (horizontalVelocity.magnitude < maxHorizontalSpeed)
+        {
+            rb.AddForce(currentSpeed * moveDirection);
+        }
     }
     
     private void Jump()
@@ -80,6 +98,44 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         CheckGrounded();
+    }
+    
+    void FixedUpdate()
+    {
+        ApplyAirDrag();
+        ClampVelocity();
+    }
+    
+    private void ApplyAirDrag()
+    {
+        if (!isGrounded)
+        {
+            // Get only the horizontal velocity
+            Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+            
+            if (horizontalVelocity.magnitude > 0.1f)
+            {
+                // Apply drag force opposite to the movement direction
+                Vector3 dragForce = -horizontalVelocity * airDragMultiplier;
+                rb.AddForce(dragForce, ForceMode.Acceleration);
+            }
+        }
+    }
+    
+    private void ClampVelocity()
+    {
+        // Clamp horizontal velocity
+        Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+        if (horizontalVelocity.magnitude > maxHorizontalSpeed)
+        {
+            horizontalVelocity = horizontalVelocity.normalized * maxHorizontalSpeed;
+        }
+        
+        // Clamp vertical velocity
+        float verticalVelocity = Mathf.Clamp(rb.linearVelocity.y, -maxVerticalSpeed, maxVerticalSpeed);
+        
+        // Apply the clamped velocity
+        rb.linearVelocity = new Vector3(horizontalVelocity.x, verticalVelocity, horizontalVelocity.z);
     }
     
     void CheckGrounded()
