@@ -7,6 +7,7 @@ public class InputManager : MonoBehaviour
     public UnityEvent<Vector2> OnMove = new UnityEvent<Vector2>();
     public UnityEvent OnSpacePressed = new UnityEvent();
     public UnityEvent OnResetPressed = new UnityEvent();
+    public UnityEvent OnDashPressed = new UnityEvent();
 
     void Start()
     {
@@ -19,6 +20,12 @@ public class InputManager : MonoBehaviour
         {
             Debug.Log("Space key pressed");
             OnSpacePressed?.Invoke();
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            Debug.Log("Dash key pressed");
+            OnDashPressed?.Invoke();
         }
 
         Vector2 input = Vector2.zero;
